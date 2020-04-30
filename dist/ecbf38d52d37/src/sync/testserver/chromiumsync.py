@@ -74,43 +74,47 @@ from lib.protocol import wifi_credential_specifics_pb2
 # of a program, it is useful to have an enumeration.
 ALL_TYPES = (
     TOP_LEVEL,  # The type of the 'Google Chrome' folder.
-    APPS,
+    APP,
     APP_LIST,
     APP_NOTIFICATION,
-    APP_SETTINGS,
+    APP_SETTING,
     ARC_PACKAGE,
     ARTICLE,
     AUTOFILL,
     AUTOFILL_PROFILE,
     AUTOFILL_WALLET,
-    AUTOFILL_WALLET_METADATA,
     BOOKMARK,
     DEVICE_INFO,
     DICTIONARY,
+    ENCRYPTED,
     EXPERIMENTS,
-    EXTENSIONS,
+    EXTENSION,
+    EXTENSION_SETTING,
+    FAVICON_IMAGE,
+    FAVICON_TRACKING,
     HISTORY_DELETE_DIRECTIVE,
+    MANAGED_USER,
     MANAGED_USER_SETTING,
     MANAGED_USER_SHARED_SETTING,
     MANAGED_USER_WHITELIST,
-    MANAGED_USER,
+    MOUNTAIN_SHARE,
     NIGORI,
     PASSWORD,
     PREFERENCE,
-    PRINTERS,
+    PRINTER,
     PRIORITY_PREFERENCE,
     READING_LIST,
     SEARCH_ENGINE,
+    SEND_TAB_TO_SELF,
     SESSION,
     SYNCED_NOTIFICATION,
     SYNCED_NOTIFICATION_APP_INFO,
     THEME,
     TYPED_URL,
-    EXTENSION_SETTINGS,
-    FAVICON_IMAGES,
-    FAVICON_TRACKING,
     USER_CONSENT,
-    WIFI_CREDENTIAL) = range(38)
+    USER_EVENT,
+    WALLET_METADATA,
+    WIFI_CREDENTIAL) = range(42)
 
 # An enumeration on the frequency at which the server should send errors
 # to the client. This would be specified by the url that triggers the error.
@@ -127,37 +131,39 @@ TOP_LEVEL_FOLDER_TAG = 'google_chrome'
 # to that datatype.  Note that TOP_LEVEL has no such token.
 SYNC_TYPE_FIELDS = sync_pb2.EntitySpecifics.DESCRIPTOR.fields_by_name
 SYNC_TYPE_TO_DESCRIPTOR = {
+    APP: SYNC_TYPE_FIELDS['app'],
     APP_LIST: SYNC_TYPE_FIELDS['app_list'],
     APP_NOTIFICATION: SYNC_TYPE_FIELDS['app_notification'],
-    APP_SETTINGS: SYNC_TYPE_FIELDS['app_setting'],
-    APPS: SYNC_TYPE_FIELDS['app'],
+    APP_SETTING: SYNC_TYPE_FIELDS['app_setting'],
     ARC_PACKAGE: SYNC_TYPE_FIELDS['arc_package'],
     ARTICLE: SYNC_TYPE_FIELDS['article'],
     AUTOFILL: SYNC_TYPE_FIELDS['autofill'],
     AUTOFILL_PROFILE: SYNC_TYPE_FIELDS['autofill_profile'],
     AUTOFILL_WALLET: SYNC_TYPE_FIELDS['autofill_wallet'],
-    AUTOFILL_WALLET_METADATA: SYNC_TYPE_FIELDS['wallet_metadata'],
     BOOKMARK: SYNC_TYPE_FIELDS['bookmark'],
     DEVICE_INFO: SYNC_TYPE_FIELDS['device_info'],
     DICTIONARY: SYNC_TYPE_FIELDS['dictionary'],
+    ENCRYPTED: SYNC_TYPE_FIELDS['encrypted'],
     EXPERIMENTS: SYNC_TYPE_FIELDS['experiments'],
-    EXTENSION_SETTINGS: SYNC_TYPE_FIELDS['extension_setting'],
-    EXTENSIONS: SYNC_TYPE_FIELDS['extension'],
-    FAVICON_IMAGES: SYNC_TYPE_FIELDS['favicon_image'],
+    EXTENSION: SYNC_TYPE_FIELDS['extension'],
+    EXTENSION_SETTING: SYNC_TYPE_FIELDS['extension_setting'],
+    FAVICON_IMAGE: SYNC_TYPE_FIELDS['favicon_image'],
     FAVICON_TRACKING: SYNC_TYPE_FIELDS['favicon_tracking'],
     HISTORY_DELETE_DIRECTIVE: SYNC_TYPE_FIELDS['history_delete_directive'],
+    MANAGED_USER: SYNC_TYPE_FIELDS['managed_user'],
+    MANAGED_USER_SETTING: SYNC_TYPE_FIELDS['managed_user_setting'],
     MANAGED_USER_SHARED_SETTING:
         SYNC_TYPE_FIELDS['managed_user_shared_setting'],
-    MANAGED_USER_SETTING: SYNC_TYPE_FIELDS['managed_user_setting'],
     MANAGED_USER_WHITELIST: SYNC_TYPE_FIELDS['managed_user_whitelist'],
-    MANAGED_USER: SYNC_TYPE_FIELDS['managed_user'],
+    MOUNTAIN_SHARE: SYNC_TYPE_FIELDS['mountain_share'],
     NIGORI: SYNC_TYPE_FIELDS['nigori'],
     PASSWORD: SYNC_TYPE_FIELDS['password'],
     PREFERENCE: SYNC_TYPE_FIELDS['preference'],
-    PRINTERS: SYNC_TYPE_FIELDS['printer'],
+    PRINTER: SYNC_TYPE_FIELDS['printer'],
     PRIORITY_PREFERENCE: SYNC_TYPE_FIELDS['priority_preference'],
     READING_LIST: SYNC_TYPE_FIELDS['reading_list'],
     SEARCH_ENGINE: SYNC_TYPE_FIELDS['search_engine'],
+    SEND_TAB_TO_SELF: SYNC_TYPE_FIELDS['send_tab_to_self'],
     SESSION: SYNC_TYPE_FIELDS['session'],
     SYNCED_NOTIFICATION: SYNC_TYPE_FIELDS["synced_notification"],
     SYNCED_NOTIFICATION_APP_INFO:
@@ -165,6 +171,8 @@ SYNC_TYPE_TO_DESCRIPTOR = {
     THEME: SYNC_TYPE_FIELDS['theme'],
     TYPED_URL: SYNC_TYPE_FIELDS['typed_url'],
     USER_CONSENT: SYNC_TYPE_FIELDS['user_consent'],
+    USER_EVENT: SYNC_TYPE_FIELDS['user_event'],
+    WALLET_METADATA: SYNC_TYPE_FIELDS['wallet_metadata'],
     WIFI_CREDENTIAL: SYNC_TYPE_FIELDS["wifi_credential"],
     }
 
@@ -511,14 +519,14 @@ class SyncDataModel(object):
   # Specify all the permanent items that a model might need.
   _PERMANENT_ITEM_SPECS = [
       PermanentItem('google_chrome_apps', name='Apps',
-                    parent_tag=ROOT_ID, sync_type=APPS),
+                    parent_tag=ROOT_ID, sync_type=APP),
       PermanentItem('google_chrome_app_list', name='App List',
                     parent_tag=ROOT_ID, sync_type=APP_LIST),
       PermanentItem('google_chrome_app_notifications', name='App Notifications',
                     parent_tag=ROOT_ID, sync_type=APP_NOTIFICATION),
       PermanentItem('google_chrome_app_settings',
                     name='App Settings',
-                    parent_tag=ROOT_ID, sync_type=APP_SETTINGS),
+                    parent_tag=ROOT_ID, sync_type=APP_SETTING),
       PermanentItem('google_chrome_arc_package', name='Arc Package',
                     parent_tag=ROOT_ID, sync_type=ARC_PACKAGE),
       PermanentItem('google_chrome_bookmarks', name='Bookmarks',
@@ -539,16 +547,16 @@ class SyncDataModel(object):
                     sync_type=AUTOFILL_WALLET),
       PermanentItem('google_chrome_autofill_wallet_metadata',
                     name='Autofill Wallet Metadata', parent_tag=ROOT_ID,
-                    sync_type=AUTOFILL_WALLET_METADATA),
+                    sync_type=WALLET_METADATA),
       PermanentItem('google_chrome_device_info', name='Device Info',
                     parent_tag=ROOT_ID, sync_type=DEVICE_INFO),
       PermanentItem('google_chrome_experiments', name='Experiments',
                     parent_tag=ROOT_ID, sync_type=EXPERIMENTS),
       PermanentItem('google_chrome_extension_settings',
                     name='Extension Settings',
-                    parent_tag=ROOT_ID, sync_type=EXTENSION_SETTINGS),
+                    parent_tag=ROOT_ID, sync_type=EXTENSION_SETTING),
       PermanentItem('google_chrome_extensions', name='Extensions',
-                    parent_tag=ROOT_ID, sync_type=EXTENSIONS),
+                    parent_tag=ROOT_ID, sync_type=EXTENSION),
       PermanentItem('google_chrome_history_delete_directives',
                     name='History Delete Directives',
                     parent_tag=ROOT_ID,
@@ -556,7 +564,7 @@ class SyncDataModel(object):
       PermanentItem('google_chrome_favicon_images',
                     name='Favicon Images',
                     parent_tag=ROOT_ID,
-                    sync_type=FAVICON_IMAGES),
+                    sync_type=FAVICON_IMAGE),
       PermanentItem('google_chrome_favicon_tracking',
                     name='Favicon Tracking',
                     parent_tag=ROOT_ID,
@@ -580,7 +588,7 @@ class SyncDataModel(object):
       PermanentItem('google_chrome_preferences', name='Preferences',
                     parent_tag=ROOT_ID, sync_type=PREFERENCE),
       PermanentItem('google_chrome_printer', name='Printers',
-                    parent_tag=ROOT_ID, sync_type=PRINTERS,
+                    parent_tag=ROOT_ID, sync_type=PRINTER,
                     create_by_default=False),
       PermanentItem('google_chrome_priority_preferences',
                     name='Priority Preferences',
@@ -784,11 +792,16 @@ class SyncDataModel(object):
   def ResetStoreBirthday(self):
     """Resets the store birthday to a random value."""
     # TODO(nick): uuid.uuid1() is better, but python 2.5 only.
-    self.store_birthday = "0.0";
+    print "Reset STORE_BIRTHDAY"
+    self.store_birthday = None;
 
   def SaveStoreBirthday(self, birthday):
     print "Saving STORE_BIRTHDAY: %s" % birthday
     self.store_birthday = birthday
+
+  def RandomStoreBirthday(self):
+    self.store_birthday = '%0.30f' % random.random()
+    print "Random STORE_BIRTHDAY: %s" % self.store_birthday
 
   def StoreBirthday(self):
     """Gets the store birthday."""
@@ -1050,6 +1063,9 @@ class SyncDataModel(object):
           return False
         if self._entries[child_id].parent_id_string == entry.id_string:
           return True
+        if child_id == self._entries[child_id].parent_id_string:
+          # a self-referencing entry
+          return False
         return IsChild(self._entries[child_id].parent_id_string)
 
       # Identify any children entry might have.
@@ -1303,8 +1319,10 @@ class TestServer(object):
   def CheckStoreBirthday(self, request):
     """Raises StoreBirthdayError if the request's birthday is a mismatch."""
     if not request.HasField('store_birthday'):
+      if self.account.StoreBirthday() == None:
+        self.account.RandomStoreBirthday()
       return
-    if self.account.StoreBirthday() == "0.0":
+    if self.account.StoreBirthday() == None:
       self.account.SaveStoreBirthday(request.store_birthday)
       return
     if self.account.StoreBirthday() != request.store_birthday:
