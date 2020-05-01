@@ -197,14 +197,11 @@ PRE_COMMIT_GU_AVOIDANCE_EXPERIMENT_TAG = "Z1xgeh3QUBa50vdEPd8C/4c7jfE="
 class Error(Exception):
   """Error class for this module."""
 
-
 class ProtobufDataTypeFieldNotUnique(Error):
   """An entry should not have more than one data type present."""
 
-
 class DataTypeIdNotRecognized(Error):
   """The requested data type is not recognized."""
-
 
 class MigrationDoneError(Error):
   """A server-side migration occurred; clients must re-sync some datatypes.
@@ -215,7 +212,6 @@ class MigrationDoneError(Error):
 
   def __init__(self, datatypes):
     self.datatypes = datatypes
-
 
 class StoreBirthdayError(Error):
   """The client sent a birthday that doesn't correspond to this server."""
@@ -912,6 +908,8 @@ class SyncDataModel(object):
     if (not entry.HasField('parent_id_string') and
         entry.HasField('client_defined_unique_tag')):
       return True  # Unique client tag items do not need to specify a parent.
+    if entry.deleted and not entry.HasField('parent_id_string'):
+      return True
     if entry.parent_id_string not in self._entries:
       print 'Warning: Client sent unknown ID \"' + entry.parent_id_string +'\". Should never happen.'
       return False
@@ -953,6 +951,7 @@ class SyncDataModel(object):
         entry.originator_client_item_id = entry.id_string
       commit_session[entry.id_string] = new_id  # Remember the remapping.
       entry.id_string = new_id
+
     if entry.parent_id_string in commit_session:
       entry.parent_id_string = commit_session[entry.parent_id_string]
     if entry.insert_after_item_id in commit_session:
@@ -1062,6 +1061,10 @@ class SyncDataModel(object):
         if child_id not in self._entries:
           return False
         if self._entries[child_id].parent_id_string == entry.id_string:
+          # the entry is a parent
+          return True
+        if child_id == entry.id_string:
+          # the entry is the child
           return True
         if child_id == self._entries[child_id].parent_id_string:
           # a self-referencing entry
